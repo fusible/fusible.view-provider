@@ -22,6 +22,9 @@ namespace Fusible\ViewProvider;
 use Aura\Di\Container;
 use Aura\Di\ContainerConfig;
 
+use Aura\Html\HelperLocatorFactory;
+use Aura\View\ViewFactory;
+
 /**
  * Config
  *
@@ -52,7 +55,7 @@ class Config extends ContainerConfig
         // Aura\Html
         $di->set(
             'aura/html:factory',
-            $di->lazyNew('Aura\Html\HelperLocatorFactory')
+            $di->lazyNew(HelperLocatorFactory::class)
         );
 
         $di->set(
@@ -67,7 +70,7 @@ class Config extends ContainerConfig
         // Aura\View
         $di->set(
             'aura/view:factory',
-            $di->lazyNew('Aura\View\ViewFactory')
+            $di->lazyNew(ViewFactory::class)
         );
 
         $di->set(
