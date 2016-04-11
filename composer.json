@@ -25,7 +25,5 @@
             "Fusible\\ViewProvider\\":"tests/",
             "Aura\\Di\\": "vendor/aura/di/tests/"
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
