@@ -38,6 +38,10 @@ use Aura\View\ViewFactory;
  */
 class Config extends ContainerConfig
 {
+    const VIEW_FACTORY = 'aura/view:factory';
+    const VIEW         = 'aura/view:view';
+    const HTML_FACTORY = 'aura/html:factory';
+    const HTML_HELPERS = 'aura/html:helpers';
 
     /**
      * Define Aura\View and Aura\Html factories and services
@@ -54,14 +58,14 @@ class Config extends ContainerConfig
     {
         // Aura\Html
         $di->set(
-            'aura/html:factory',
+            static::HTML_FACTORY,
             $di->lazyNew(HelperLocatorFactory::class)
         );
 
         $di->set(
-            'aura/html:helpers',
+            static::HTML_HELPERS,
             $di->lazyGetCall(
-                'aura/html:factory',
+                static::HTML_FACTORY,
                 'newInstance'
             )
         );
@@ -69,16 +73,16 @@ class Config extends ContainerConfig
 
         // Aura\View
         $di->set(
-            'aura/view:factory',
+            static::VIEW_FACTORY,
             $di->lazyNew(ViewFactory::class)
         );
 
         $di->set(
-            'aura/view:view',
+            static::VIEW,
             $di->lazyGetCall(
-                'aura/view:factory',
+                static::VIEW_FACTORY,
                 'newInstance',
-                $di->lazyGet('aura/html:helpers')
+                $di->lazyGet(static::HTML_HELPERS)
             )
         );
     }
