@@ -21,7 +21,9 @@ class ConfigTest extends AbstractContainerConfigTest
             ['aura/view:factory', 'Aura\View\ViewFactory'],
             ['aura/html:factory', 'Aura\Html\HelperLocatorFactory'],
             ['aura/view:view', 'Aura\View\View'],
-            ['aura/html:helpers', 'Aura\Html\HelperLocator']
+            ['aura/html:helpers', 'Aura\Html\HelperLocator'],
+            ['aura/html:escaper', 'Aura\Html\Escaper'],
+            ['aura/html:escaper_factory', 'Aura\Html\EscaperFactory']
         ];
     }
 

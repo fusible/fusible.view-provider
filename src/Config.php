@@ -23,6 +23,8 @@ use Aura\Di\Container;
 use Aura\Di\ContainerConfig;
 
 use Aura\Html\HelperLocatorFactory;
+use Aura\Html\EscaperFactory;
+use Aura\Html\Helper\AbstractHelper;
 use Aura\View\ViewFactory;
 
 /**
@@ -42,6 +44,8 @@ class Config extends ContainerConfig
     const VIEW         = 'aura/view:view';
     const HTML_FACTORY = 'aura/html:factory';
     const HTML_HELPERS = 'aura/html:helpers';
+    const HTML_ESCAPER = 'aura/html:escaper';
+    const HTML_ESCAPER_FACTORY = 'aura/html:escaper_factory';
 
     /**
      * Define Aura\View and Aura\Html factories and services
@@ -70,6 +74,20 @@ class Config extends ContainerConfig
             )
         );
 
+        $di->set(
+            static::HTML_ESCAPER_FACTORY,
+            $di->lazyNew(EscaperFactory::class)
+        );
+
+        $di->set(
+            static::HTML_ESCAPER,
+            $di->lazyGetCall(static::HTML_ESCAPER_FACTORY, 'newInstance')
+        );
+
+        $di->params[AbstractHelper::class] = [
+            'escaper' => $di->lazyGet(static::HTML_ESCAPER)
+        ];
+
 
         // Aura\View
         $di->set(
@@ -85,5 +103,6 @@ class Config extends ContainerConfig
                 $di->lazyGet(static::HTML_HELPERS)
             )
         );
+
     }
 }
