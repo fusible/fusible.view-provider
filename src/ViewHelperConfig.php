@@ -123,7 +123,7 @@ class ViewHelperConfig extends ContainerConfig
      */
     public function modify(Container $di)
     {
-        $helpers  = $di->get(HelperLocator::class);
+        $helpers  = $di->get(Html\HelperLocator::class);
         $resolver = $di->newResolutionHelper();
         foreach ($this->getFactories($resolver) as $name => $factory) {
             $helpers->set($name, $factory);
