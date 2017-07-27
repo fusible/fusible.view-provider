@@ -11,9 +11,9 @@
         }
     ],
     "require": {
-         "aura/di": "~3.0",
-         "aura/view": "^2.0",
-         "aura/html": "^2.0"
+         "aura/di": "~3.3",
+         "aura/view": "^2.3",
+         "aura/html": "^2.5"
     },
     "autoload": {
         "psr-4": {
@@ -25,5 +25,8 @@
             "Fusible\\ViewProvider\\":"tests/",
             "Aura\\Di\\": "vendor/aura/di/tests/"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.2"
     }
 }

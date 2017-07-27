@@ -20,10 +20,7 @@
 namespace Fusible\ViewProvider;
 
 use Aura\Di\Container;
-use Aura\Di\ContainerConfig;
-
-use Aura\Html\HelperLocatorFactory;
-use Aura\View\ViewFactory;
+use Aura\Di\ConfigCollection;
 
 /**
  * Config
@@ -36,54 +33,58 @@ use Aura\View\ViewFactory;
  *
  * @see ContainerConfig
  */
-class Config extends ContainerConfig
+class Config extends ConfigCollection
 {
-    const VIEW_FACTORY = 'aura/view:factory';
-    const VIEW         = 'aura/view:view';
-    const HTML_FACTORY = 'aura/html:factory';
-    const HTML_HELPERS = 'aura/html:helpers';
+    protected $configs = [];
 
     /**
-     * Define Aura\View and Aura\Html factories and services
+     * __construct
      *
-     * @param Container $di DI Container
+     * @param mixed $templates DESCRIPTION
+     * @param array $helpers   DESCRIPTION
      *
-     * @return void
+     * @return mixed
      *
      * @access public
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
      */
-    public function define(Container $di)
+    public function __construct($templates = null, array $helpers = [])
     {
-        // Aura\Html
-        $di->set(
-            static::HTML_FACTORY,
-            $di->lazyNew(HelperLocatorFactory::class)
-        );
+        $this->configs = [
+            ViewConfig::class => new ViewConfig,
+            ViewHelperConfig::class => new ViewHelperConfig
+        ];
 
-        $di->set(
-            static::HTML_HELPERS,
-            $di->lazyGetCall(
-                static::HTML_FACTORY,
-                'newInstance'
-            )
-        );
+        if ($templates) {
+            $this->view()->addTemplatePath($templates);
+        }
 
+        if ($helpers) {
+            $this->helper()->addHelpers($helpers);
+        }
+    }
 
-        // Aura\View
-        $di->set(
-            static::VIEW_FACTORY,
-            $di->lazyNew(ViewFactory::class)
-        );
+    /**
+     * View
+     *
+     * @return mixed
+     *
+     * @access public
+     */
+    public function view()
+    {
+        return $this->configs[ViewConfig::class];
+    }
 
-        $di->set(
-            static::VIEW,
-            $di->lazyGetCall(
-                static::VIEW_FACTORY,
-                'newInstance',
-                $di->lazyGet(static::HTML_HELPERS)
-            )
-        );
+    /**
+     * Helper
+     *
+     * @return mixed
+     * @throws exceptionclass [description]
+     *
+     * @access public
+     */
+    public function helper()
+    {
+        return $this->configs[ViewHelperConfig::class];
     }
 }
