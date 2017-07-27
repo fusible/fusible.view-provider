@@ -5,41 +5,42 @@ namespace Fusible\ViewProvider;
 
 use Aura\Di\AbstractContainerConfigTest;
 
+use Aura\View;
+use Aura\Html;
+
 class ConfigTest extends AbstractContainerConfigTest
 {
 
     protected function getConfigClasses()
     {
-        return [
-            'Fusible\ViewProvider\Config'
-        ];
+        return [Config::class];
     }
 
     public function provideGet()
     {
         return [
-            ['aura/view:factory', 'Aura\View\ViewFactory'],
-            ['aura/html:factory', 'Aura\Html\HelperLocatorFactory'],
-            ['aura/view:view', 'Aura\View\View'],
-            ['aura/html:helpers', 'Aura\Html\HelperLocator'],
-            ['aura/html:escaper', 'Aura\Html\Escaper'],
-            ['aura/html:escaper_factory', 'Aura\Html\EscaperFactory']
+            [View\ViewFactory::class, View\ViewFactory::class],
+            [Html\HelperLocatorFactory::class, Html\HelperLocatorFactory::class],
+            [View\View::class, View\View::class],
+            [Html\HelperLocator::class, Html\HelperLocator::class],
+            [Html\Escaper::class, Html\Escaper::class],
+            [Html\EscaperFactory::class, Html\EscaperFactory::class]
         ];
     }
 
     public function provideNewInstance()
     {
         return [
-            ['Aura\View\ViewFactory'],
-            ['Aura\Html\HelperLocatorFactory'],
+            [View\ViewFactory::class],
+            [Html\HelperLocatorFactory::class],
         ];
     }
 
     public function testConfig()
     {
         $this->assertInstanceOf(
-            'Aura\Html\HelperLocator',
-            $this->di->get('aura/view:view')->getHelpers()
+            Html\HelperLocator::class,
+            $this->di->get(View\View::class)->getHelpers()
         );
     }
 }
