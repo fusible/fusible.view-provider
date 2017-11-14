@@ -20,7 +20,10 @@
 namespace Fusible\ViewProvider;
 
 use Aura\Di\Container;
-use Aura\Di\ConfigCollection;
+use Aura\Di\ContainerConfig;
+
+use Aura\Html;
+use Aura\View;
 
 /**
  * Config
@@ -33,58 +36,161 @@ use Aura\Di\ConfigCollection;
  *
  * @see ContainerConfig
  */
-class Config extends ConfigCollection
+class Config extends ContainerConfig
 {
-    protected $configs = [];
+    // View
+    const VIEW         = View\View::class;
+    const VIEW_FACTORY = View\ViewFactory::class;
+
+    // View params
+    const VIEW_MAP     = self::class . '::VIEW_MAP';
+    const VIEW_PATHS   = self::class . '::VIEW_PATHS';
+    const LAYOUT_MAP   = self::class . '::LAYOUT_MAP';
+    const LAYOUT_PATHS = self::class . '::LAYOUT_PATHS';
+
+    // Helper
+    const HELPER_LOCATOR = Html\HelperLocator::class;
+    const HELPER_FACTORY = Html\HelperLocatorFactory::class;
+
+    // Helpers
+    const HELPER_SPECS   = self::class . '::HELPER_SPECS';
+
+    // Escaper
+    const ESCAPER_FACTORY = Html\EscaperFactory::class;
+    const ESCAPER         = Html\Escaper::class;
+
+
+    protected $params = [
+        self::VIEW_MAP      => [],
+        self::VIEW_PATHS    => [],
+        self::LAYOUT_MAP    => [],
+        self::LAYOUT_PATHS  => [],
+        self::HELPER_SPECS  => []
+    ];
 
     /**
-     * __construct
+     * Define Aura\View and Aura\Html factories and services
      *
-     * @param mixed $templates DESCRIPTION
-     * @param array $helpers   DESCRIPTION
+     * @param Container $di DI Container
      *
-     * @return mixed
+     * @return void
      *
      * @access public
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
-    public function __construct($templates = null, array $helpers = [])
+    public function define(Container $di)
     {
-        $this->configs = [
-            ViewConfig::class => new ViewConfig,
-            ViewHelperConfig::class => new ViewHelperConfig
+        foreach ($this->params as $key => $value) {
+            if (! isset($di->values[$key])) {
+                $di->values[$key] = $value;
+            }
+        }
+
+        $this->defineView($di);
+        $this->defineHelpers($di);
+    }
+
+    /**
+     * Define Aura\Html factories and services
+     *
+     * @param Container $di DI Container
+     *
+     * @return void
+     *
+     * @access public
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
+     */
+    protected function defineHelpers(Container $di)
+    {
+        $di->set(
+            self::HELPER_FACTORY,
+            $di->lazyNew(Html\HelperLocatorFactory::class)
+        );
+
+        $di->set(
+            self::HELPER_LOCATOR,
+            $di->lazyGetCall(self::HELPER_FACTORY, 'newInstance')
+        );
+
+        $di->set(
+            self::ESCAPER_FACTORY,
+            $di->lazyNew(Html\EscaperFactory::class)
+        );
+
+        $di->set(
+            self::ESCAPER,
+            $di->lazyGetCall(self::ESCAPER_FACTORY, 'newInstance')
+        );
+
+        $di->params[Html\Helper\AbstractHelper::class] = [
+            'escaper' => $di->lazyGet(self::ESCAPER)
         ];
-
-        if ($templates) {
-            $this->view()->addTemplatePath($templates);
-        }
-
-        if ($helpers) {
-            $this->helper()->addHelpers($helpers);
-        }
     }
 
     /**
-     * View
+     * Define Aura\View factories and services
      *
-     * @return mixed
+     * @param Container $di DI Container
+     *
+     * @return void
      *
      * @access public
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
-    public function view()
+    protected function defineView(Container $di)
     {
-        return $this->configs[ViewConfig::class];
+        $di->set(
+            self::VIEW_FACTORY,
+            $di->lazyNew(View\ViewFactory::class)
+        );
+
+        $di->set(
+            self::VIEW,
+            $di->lazyGetCall(
+                View\ViewFactory::class,
+                'newInstance',
+                $di->lazyGet(self::HELPER_LOCATOR),
+                $di->lazyValue(self::VIEW_MAP),
+                $di->lazyValue(self::VIEW_PATHS),
+                $di->lazyValue(self::LAYOUT_MAP),
+                $di->lazyValue(self::LAYOUT_PATHS)
+            )
+        );
     }
 
     /**
-     * Helper
+     * Define Add helpers
      *
-     * @return mixed
-     * @throws exceptionclass [description]
+     * @param Container $di DI Container
+     *
+     * @return void
      *
      * @access public
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
-    public function helper()
+    public function modify(Container $di)
     {
-        return $this->configs[ViewHelperConfig::class];
+        $specs = $di->lazyValue(self::HELPER_SPECS);
+        $specs = $specs();
+        if (! $specs) {
+            return;
+        }
+
+        $helpers = $di->get(self::HELPER_LOCATOR);
+        $resolve = $di->newResolutionHelper();
+
+        foreach ($specs as $key => $spec) {
+
+            $factory = function () use ($resolve, $spec) {
+                return $resolve($spec);
+            };
+
+            $helpers->set($key, $factory);
+        }
     }
+
 }
