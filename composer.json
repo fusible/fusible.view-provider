@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-         "aura/di": "~3.3",
+         "aura/di": "~4.0",
          "aura/view": "^2.3",
          "aura/html": "^2.5"
     },
