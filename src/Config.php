@@ -79,7 +79,7 @@ class Config extends ContainerConfig
      *
      * @SuppressWarnings(PHPMD.ShortVariable)
      */
-    public function define(Container $di)
+    public function define(Container $di) : void
     {
         foreach ($this->params as $key => $value) {
             if (! isset($di->values[$key])) {
@@ -172,7 +172,7 @@ class Config extends ContainerConfig
      *
      * @SuppressWarnings(PHPMD.ShortVariable)
      */
-    public function modify(Container $di)
+    public function modify(Container $di) : void
     {
         $specs = $di->lazyValue(self::HELPER_SPECS);
         $specs = $specs();
